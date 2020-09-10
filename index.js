@@ -24,8 +24,8 @@ app.get('/files', (req, res) => {
         })
     })
     readFile()
-        .then(data => res.send(data))
-        .catch(err => res.send(err))
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(404).send(err))
 })
 
 let PORT = process.env.PORT
