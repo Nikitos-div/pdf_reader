@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js"></script>
+    <title>PDF Reader for one lonely night</title>
+    <style>
+        html,
+        body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .pdf-viewer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: auto;
+            overflow: auto;
+            width: 800px;
+            height: 450px;
+            background-color: black;
+        }
+
+        .controllers {
+            display: flex;
+            margin: auto;
+            margin-bottom: 50px;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            max-width: 500px;
+            min-width: 300px;
+            max-height: 100px;
+            min-height: 100px;
+            border-radius: 2px;
+            border: 1px solid grey;
+        }
+
+        .controllers__updater {
+            display: flex;
+            flex-direction: center;
+            align-items: center;
+            width: 200px;
+            height: 50px;
+            border-radius: 2px;
+            border: 1px solid grey;
+        }
+
+        .controllers__updater span {
+            text-align: center;
+            width: 100%;
+        }
+
+        .controllers__left {
+            margin-right: 10px;
+            width: 0;
+            height: 0;
+            border-top: 25px solid transparent;
+            border-right: 50px solid grey;
+            border-bottom: 25px solid transparent;
+
+
+        }
+
+        .controllers__right {
+            margin-left: 10px;
+            width: 0;
+            height: 0;
+            border-top: 25px solid transparent;
+            border-left: 50px solid grey;
+            border-bottom: 25px solid transparent;
+        }
+
+        .controllers__right:hover {
+            cursor: pointer;
+        }
+
+        .controllers__left:hover {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='pdf-viewer'>
+
+        <canvas id="renderer"></canvas>
+
+    </div>
+    <div class='controllers'>
+        <div class='controllers__left'>
+
+        </div>
+        <div class='controllers__updater'>
+            <div class='zoom-plus'></div>
+            <div class='zoom-minus'></div>
+        </div>
+        <div class='controllers__right'>
+        </div>
+
+    </div>
+
+</body>
+<script>
+    let state = {
+        current: 1,
+        zoom: 1
+    }
+
+    function render() {
+        state.pdf.getPage(state.current).then((page) => {
+            let canvas = document.querySelector("#renderer");
+            let ctx = canvas.getContext('2d');
+            let viewport = page.getViewport(state.zoom);
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            page.render({
+                canvasContext: ctx,
+                viewport: viewport
+            });
+        });
+
+    }
+    pdfjsLib.getDocument('http://localhost:3000/files').then((pdf) => {
+        state.pdf = pdf
+        render()
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('.controllers__left').addEventListener('click', () => {
+            if (state.current == 1 || state.pdf == null) {
+                return;
+            }
+            state.current -= 1
+
+            render();
+        })
+        document.querySelector('.controllers__right').addEventListener('click', () => {
+            if (state.pdf == null
+                || state.current > state.pdf._pdfInfo.numPages)
+                return;
+
+            state.current += 1;
+
+            render();
+        })
+
+    });
+
+</script>
+
+</html>
